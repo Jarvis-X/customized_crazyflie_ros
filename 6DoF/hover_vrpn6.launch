@@ -1,0 +1,252 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="joy_dev" default="/dev/input/js0" />
+  <arg name="ip" default="vicon" />
+  <arg name="port" default="3883" />
+  <arg name="server" default="192.168.2.4"/>
+
+  <arg name="uri1" default="radio://0/90/2M/E700000001" />
+  <arg name="uri2" default="radio://0/90/2M/E700000002" />
+  <arg name="uri3" default="radio://0/100/2M/E700000003" />
+  <arg name="uri4" default="radio://0/100/2M/E700000004" />  
+  
+  <arg name="frameName" default="crazyflie" />
+
+  <arg name="x1" default="0.0" />
+  <arg name="y1" default="0.0" />
+  <arg name="z1" default="0.5" />
+
+
+  <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch">
+  </include>
+
+  <group ns="crazyflie1">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+      <param name="uri" value="$(arg uri1)" />
+      <param name="tf_prefix" value="crazyflie1" />
+      <param name="enable_logging" value="True" />
+      <param name="enable_logging_imu" value="False" />
+      <param name="enable_logging_temperature" value="False" />
+      <param name="enable_logging_magnetic_field" value="False" />
+      <param name="enable_logging_pressure" value="False" />
+      <param name="enable_logging_battery" value="False" />
+      <param name="1ets" value="False" />
+      <rosparam>
+        <!-- genericLogTopics: ["motorPower", "eR", "er"]
+        genericLogTopicFrequencies: [100, 100, 100]
+        genericLogTopic_motorPower_Variables: ["motor.m1", "motor.m2", "motor.m3", "motor.m4"]
+        genericLogTopic_eR_Variables: ["ctrlMel.eRx", "ctrlMel.eRy", "ctrlMel.eRz"]
+        genericLogTopic_er_Variables: ["ctrlMel.ex", "ctrlMel.ey", "ctrlMel.ez"] -->
+        genericLogTopics: ["iem"]
+        genericLogTopicFrequencies: [100]
+        genericLogTopic_iem_Variables: ["ctrlMel.i_m_err_x", "ctrlMel.i_m_err_y", "ctrlMel.i_m_err_z"]
+      </rosparam>
+    </node>
+
+    <node name="joy" pkg="joy" type="joy_node" output="screen">
+      <param name="dev" value="$(arg joy_dev)" />
+    </node>
+
+    <node name="joystick_controller" pkg="crazyflie_demo" type="controller.py" output="screen">
+      <param name="use_crazyflie_controller" value="True" />
+    </node>
+
+    <include file="$(find crazyflie_controller)/launch/crazyflie2.launch">
+      <arg name="frame" value="$(arg frameName)" />
+    </include>
+
+    <node name="currentpose" pkg="crazyflie_demo" type="publish_external_pose_vrpn.py" output="screen">
+      <param name="topic" value="/vrpn_client_node/crazyflie/pose" />
+    </node>
+
+    <node name="pose" pkg="crazyflie_demo" type="publish_pose6.py" output="screen">
+      <param name="name" value="goal" />
+      <param name="rate" value="30" />
+      <param name="x" value="$(arg x1)" />
+      <param name="y" value="$(arg y1)" />
+      <param name="z" value="$(arg z1)" />
+    </node>
+
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster" args="0 0 0 0 0 0 1 $(arg frameName) /crazyflie1/base_link 100" />
+  </group>
+
+
+  <group ns="crazyflie2">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+      <param name="uri" value="$(arg uri2)" />
+      <param name="tf_prefix" value="crazyflie2" />
+      <param name="enable_logging" value="True" />
+      <param name="enable_logging_imu" value="False" />
+      <param name="enable_logging_temperature" value="False" />
+      <param name="enable_logging_magnetic_field" value="False" />
+      <param name="enable_logging_pressure" value="False" />
+      <param name="enable_logging_battery" value="False" />
+      <param name="enable_logging_packets" value="False" /> 
+      <rosparam>
+        <!-- genericLogTopics: ["motorPower", "eR", "er"]
+        genericLogTopicFrequencies: [100, 100, 100]
+        genericLogTopic_motorPower_Variables: ["motor.m1", "motor.m2", "motor.m3", "motor.m4"]
+        genericLogTopic_eR_Variables: ["ctrlMel.eRx", "ctrlMel.eRy", "ctrlMel.eRz"]
+        genericLogTopic_er_Variables: ["ctrlMel.ex", "ctrlMel.ey", "ctrlMel.ez"] -->
+        genericLogTopics: ["ie"]
+        genericLogTopicFrequencies: [100]
+        genericLogTopic_ie_Variables: ["ctrlMel.i_err_x", "ctrlMel.i_err_y", "ctrlMel.i_err_z"]
+      </rosparam>
+    </node>
+
+    <node name="joy" pkg="joy" type="joy_node" output="screen">
+      <param name="dev" value="$(arg joy_dev)" />
+    </node>
+
+    <node name="joystick_controller" pkg="crazyflie_demo" type="controller.py" output="screen">
+      <param name="use_crazyflie_controller" value="True" />
+    </node>
+
+    <include file="$(find crazyflie_controller)/launch/crazyflie2.launch">
+      <arg name="frame" value="$(arg frameName)" />
+    </include>
+
+    <node name="currentpose" pkg="crazyflie_demo" type="publish_external_pose_vrpn.py" output="screen">
+      <param name="topic" value="/vrpn_client_node/crazyflie/pose" />
+    </node>
+
+    <node name="pose" pkg="crazyflie_demo" type="publish_pose6.py" output="screen">
+      <param name="name" value="goal" />
+      <param name="rate" value="30" />
+      <param name="x" value="$(arg x1)" />
+      <param name="y" value="$(arg y1)" />
+      <param name="z" value="$(arg z1)" />
+    </node>
+
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster" args="0 0 0 0 0 0 1 $(arg frameName) /crazyflie2/base_link 100" />
+  </group>
+
+  <group ns="crazyflie3">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+      <param name="uri" value="$(arg uri3)" />
+      <param name="tf_prefix" value="crazyflie3" />
+      <param name="enable_logging" value="True" />
+      <param name="enable_logging_imu" value="False" />
+      <param name="enable_logging_temperature" value="False" />
+      <param name="enable_logging_magnetic_field" value="False" />
+      <param name="enable_logging_pressure" value="False" />
+      <param name="enable_logging_battery" value="False" />
+      <param name="enable_logging_packets" value="False" />
+      <rosparam>
+        <!-- genericLogTopics: ["motorPower", "eR", "er"]
+        genericLogTopicFrequencies: [100, 100, 100]
+        genericLogTopic_motorPower_Variables: ["motor.m1", "motor.m2", "motor.m3", "motor.m4"]
+        genericLogTopic_eR_Variables: ["ctrlMel.eRx", "ctrlMel.eRy", "ctrlMel.eRz"]
+        genericLogTopic_er_Variables: ["ctrlMel.ex", "ctrlMel.ey", "ctrlMel.ez"] -->
+        <!-- genericLogTopics: ["iem", "ie"]
+        genericLogTopicFrequencies: [100, 100]
+        genericLogTopic_iem_Variables: ["ctrlMel.i_error_m_x", "ctrlMel.i_error_m_y", "ctrlMel.i_error_m_z"]
+        genericLogTopic_ie_Variables: ["ctrlMel.i_error_x", "ctrlMel.i_error_y", "ctrlMel.i_error_z"] -->
+      </rosparam>
+    </node>
+
+    <node name="joy" pkg="joy" type="joy_node" output="screen">
+      <param name="dev" value="$(arg joy_dev)" />
+    </node>
+
+    <node name="joystick_controller" pkg="crazyflie_demo" type="controller.py" output="screen">
+      <param name="use_crazyflie_controller" value="True" />
+    </node>
+
+    <include file="$(find crazyflie_controller)/launch/crazyflie2.launch">
+      <arg name="frame" value="$(arg frameName)" />
+    </include>
+
+    <node name="currentpose" pkg="crazyflie_demo" type="publish_external_pose_vrpn.py" output="screen">
+      <param name="topic" value="/vrpn_client_node/crazyflie/pose" />
+    </node>
+
+    <node name="pose" pkg="crazyflie_demo" type="publish_pose6.py" output="screen">
+      <param name="name" value="goal" />
+      <param name="rate" value="30" />
+      <param name="x" value="$(arg x1)" />
+      <param name="y" value="$(arg y1)" />
+      <param name="z" value="$(arg z1)" />
+    </node>
+
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster" args="0 0 0 0 0 0 1 $(arg frameName) /crazyflie3/base_link 100" />
+  </group>
+
+  <group ns="crazyflie4">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+      <param name="uri" value="$(arg uri4)" />
+      <param name="tf_prefix" value="crazyflie4" />
+      <param name="enable_logging" value="True" />
+      <param name="enable_logging_imu" value="False" />
+      <param name="enable_logging_temperature" value="False" />
+      <param name="enable_logging_magnetic_field" value="False" />
+      <param name="enable_logging_pressure" value="False" />
+      <param name="enable_logging_battery" value="False" />
+      <param name="enable_logging_packets" value="False" />
+      <rosparam>
+        <!-- genericLogTopics: ["motorPower", "eR", "er"]
+        genericLogTopicFrequencies: [100, 100, 100]
+        genericLogTopic_motorPower_Variables: ["motor.m1", "motor.m2", "motor.m3", "motor.m4"]
+        genericLogTopic_eR_Variables: ["ctrlMel.eRx", "ctrlMel.eRy", "ctrlMel.eRz"]
+        genericLogTopic_er_Variables: ["ctrlMel.ex", "ctrlMel.ey", "ctrlMel.ez"] -->
+        <!-- genericLogTopics: ["iem", "ie"]
+        genericLogTopicFrequencies: [100, 100]
+        genericLogTopic_iem_Variables: ["ctrlMel.i_error_m_x", "ctrlMel.i_error_m_y", "ctrlMel.i_error_m_z"]
+        genericLogTopic_ie_Variables: ["ctrlMel.i_error_x", "ctrlMel.i_error_y", "ctrlMel.i_error_z"] -->
+      </rosparam>
+    </node>
+
+    <node name="joy" pkg="joy" type="joy_node" output="screen">
+      <param name="dev" value="$(arg joy_dev)" />
+    </node>
+
+    <node name="joystick_controller" pkg="crazyflie_demo" type="controller.py" output="screen">
+      <param name="use_crazyflie_controller" value="True" />
+    </node>
+
+    <include file="$(find crazyflie_controller)/launch/crazyflie2.launch">
+      <arg name="frame" value="$(arg frameName)" />
+    </include>
+
+    <node name="currentpose" pkg="crazyflie_demo" type="publish_external_pose_vrpn.py" output="screen">
+      <param name="topic" value="/vrpn_client_node/crazyflie/pose" />
+    </node>
+
+    <node name="pose" pkg="crazyflie_demo" type="publish_pose6.py" output="screen">
+      <param name="name" value="goal" />
+      <param name="rate" value="30" />
+      <param name="x" value="$(arg x1)" />
+      <param name="y" value="$(arg y1)" />
+      <param name="z" value="$(arg z1)" />
+    </node>
+
+    <node pkg="tf" type="static_transform_publisher" name="baselink_broadcaster" args="0 0 0 0 0 0 1 $(arg frameName) /crazyflie4/base_link 100" />
+  </group>
+
+  <node pkg="vrpn_client_ros" type="vrpn_client_node" name="vrpn_client_node" output="screen">
+    <rosparam subst_value="true">
+      server: $(arg server)
+      port: $(arg port)
+
+      update_frequency: 100.0
+      frame1_id: world
+
+      # Use the VRPN server's time, or the client's ROS time.
+      use_server_time: false
+      broadcast_tf: true
+
+      # Must either specify refresh frequency > 0.0, or a list of trackers to create
+      refresh_tracker_frequency: 1.0
+      #trackers:
+      #- FirstTracker
+      #- SecondTracker
+    </rosparam>
+  </node>
+
+
+  <!-- run rviz -->
+<!--   <param name="robot_description" command="$(find xacro)/xacro.py $(find crazyflie_description)/urdf/crazyflie.urdf.xacro" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find crazyflie_demo)/launch/crazyflie_pos.rviz" required="true" />
+ -->
+
+</launch>
