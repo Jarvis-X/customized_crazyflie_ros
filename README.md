@@ -1,5 +1,5 @@
 # customized_crazyflie_ros
-Customized crazyflie ros files that works with H-ModQuad firmware
+Customized crazyflie ros files that works with H-ModQuad firmware: https://github.com/swarmslab/modquad-firmware/tree/HModQuad
 ## requirements
 * A tracking system that suports VRPN
 * crazyflie_ros at https://github.com/whoenig/crazyflie_ros
